@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Senkumba Family Savings</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0A0F0D;--surface:#111916;--surface2:#182218;--border:#243024;
+    --green:#4ADE80;--green2:#22C55E;--green-dim:#166534;
+    --gold:#FBBF24;--red:#F87171;--text:#E7F5EE;--muted:#6B8F72;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+  h1,h2,h3{font-family:'Playfair Display',serif}
+
+  /* LOGIN */
+  .login-screen{
+    position:fixed;inset:0;background:radial-gradient(ellipse at 30% 20%,#0d2a1a,#0A0F0D 65%);
+    display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;
+  }
+  .login-box{
+    background:var(--surface);border:1px solid var(--border);border-radius:20px;
+    padding:40px 32px;max-width:420px;width:100%;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.8);
+  }
+  .login-logo{font-size:52px;margin-bottom:12px}
+  .login-title{font-size:26px;color:#A7F3D0;margin-bottom:4px}
+  .login-sub{font-size:11px;color:#4ADE80;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px}
+  .portal-select{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+  .portal-btn{
+    padding:16px 12px;border-radius:12px;border:2px solid var(--border);
+    background:transparent;color:var(--text);cursor:pointer;
+    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+    transition:all .2s;text-align:center;
+  }
+  .portal-btn .portal-icon{font-size:26px;margin-bottom:8px}
+  .portal-btn.admin-btn.selected{border-color:#7C3AED;background:#7C3AED18;color:#C4B5FD}
+  .portal-btn.member-btn.selected{border-color:#0EA5E9;background:#0EA5E918;color:#7DD3FC}
+  .portal-btn:hover{transform:translateY(-2px)}
+  .login-field{margin-bottom:14px;text-align:left}
+  .login-field label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+  .login-field select,.login-field input{
+    width:100%;padding:10px 14px;background:#0A0F0D;border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;
+  }
+  .login-field select:focus,.login-field input:focus{outline:none;border-color:var(--green)}
+  .login-enter{
+    width:100%;padding:13px;border:none;border-radius:10px;font-weight:700;cursor:pointer;
+    font-family:'DM Sans',sans-serif;font-size:15px;transition:opacity .2s;margin-top:8px;
+    background:linear-gradient(135deg,#166534,#22C55E);color:#fff;
+  }
+  .login-enter:hover{opacity:.85}
+  .login-hint{font-size:11px;color:var(--muted);margin-top:14px}
+
+  /* ROLE BADGE */
+  .role-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;
+    font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  }
+  .role-badge.admin{background:#7C3AED22;color:#C4B5FD;border:1px solid #7C3AED44}
+  .role-badge.member{background:#0EA5E922;color:#7DD3FC;border:1px solid #0EA5E944}
+
+  /* HEADER */
+  .header{
+    background:linear-gradient(135deg,#0d2a1a 0%,#1a4a2e 60%,#0d2a1a 100%);
+    border-bottom:1px solid #2d4a38;padding:24px 20px 0;
+  }
+  .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+  .logo{font-size:40px}
+  .app-title{font-size:24px;color:#A7F3D0;letter-spacing:.5px}
+  .app-sub{font-size:11px;color:#4ADE80;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .logout-btn{
+    padding:7px 14px;background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:8px;cursor:pointer;font-size:12px;
+    font-family:'DM Sans',sans-serif;transition:all .2s;
+  }
+  .logout-btn:hover{border-color:var(--red);color:var(--red)}
+  .summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .s-card{background:rgba(0,0,0,.4);border-radius:10px;padding:12px 14px;border-left:3px solid var(--c)}
+  .s-card .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .s-card .val{font-size:17px;font-weight:700;color:var(--c);margin-top:4px;font-family:'Playfair Display',serif}
+
+  /* NAV */
+  .nav{background:#0e1a12;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;position:sticky;top:0;z-index:99}
+  .nav-btn{padding:14px 16px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+  .nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
+  .nav-btn:hover{color:var(--text)}
+
+  /* CONTENT */
+  .content{max-width:900px;margin:0 auto;padding:24px 16px}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
+  .card-header{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+
+  /* MEMBER GRID */
+  .member-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:600px){.member-grid{grid-template-columns:1fr}.summary-cards{grid-template-columns:1fr}}
+  .member-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:3px solid var(--mc)}
+  .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;flex-shrink:0}
+  .bar-track{background:#0A0F0D;border-radius:4px;height:6px;margin:10px 0}
+  .bar-fill{height:100%;border-radius:4px;transition:width .5s}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12px}
+  .stat-label{color:var(--muted);margin-bottom:2px}
+  .stat-val{font-weight:600}
+
+  /* FORM */
+  .form-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;max-width:480px}
+  label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+  select,input[type=text],input[type=number],input[type=password]{
+    width:100%;padding:10px 14px;background:#0A0F0D;border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;
+    margin-bottom:14px;transition:border .2s
+  }
+  select:focus,input:focus{outline:none;border-color:var(--green)}
+  .btn{width:100%;padding:12px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;transition:opacity .2s}
+  .btn:hover{opacity:.85}
+  .btn-green{background:linear-gradient(135deg,#166534,#22C55E);color:#fff}
+  .btn-gold{background:linear-gradient(135deg,#92400e,#FBBF24);color:#fff}
+  .btn-red{background:linear-gradient(135deg,#7f1d1d,#F87171);color:#fff}
+  .btn-blue{background:linear-gradient(135deg,#075985,#0EA5E9);color:#fff}
+  .btn-purple{background:linear-gradient(135deg,#4C1D95,#7C3AED);color:#fff}
+  .btn-sm{width:auto;padding:7px 14px;font-size:13px;border-radius:6px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+
+  /* LOAN */
+  .loan-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+  .loan-header{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start}
+  .loan-meta{font-size:12px;color:var(--muted);margin-top:3px}
+  .loan-progress{padding:0 18px 12px}
+  .loan-payments{border-top:1px solid var(--border);padding:10px 18px}
+  .badge{display:inline-block;background:#14532d;color:#4ADE80;font-size:10px;padding:2px 9px;border-radius:10px;font-weight:700;margin-left:8px}
+  .badge-red{background:#450a0a;color:#F87171}
+  .badge-yellow{background:#451a03;color:#FBBF24}
+  .badge-purple{background:#2e1065;color:#C4B5FD}
+
+  /* HISTORY */
+  .tx-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#166534;color:#A7F3D0;padding:12px 26px;border-radius:30px;font-size:14px;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,.6);z-index:9999;display:none;white-space:nowrap}
+  .toast.show{display:block;animation:fadeup .3s ease}
+  .toast.error{background:#7f1d1d;color:#FCA5A5}
+  @keyframes fadeup{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  /* TABS */
+  .tab{display:none}.tab.active{display:block}
+  .sec-title{font-size:20px;color:#A7F3D0;margin-bottom:20px}
+  .empty{color:var(--muted);padding:20px;font-size:14px}
+  .payment-line{font-size:12px;color:var(--green);display:flex;justify-content:space-between;margin-bottom:2px}
+
+  /* REQUESTS */
+  .request-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;border-left:3px solid var(--gold)}
+  .request-card.loan-req{border-left-color:#7C3AED}
+  .request-actions{display:flex;gap:8px;margin-top:12px}
+  .approve-btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;background:linear-gradient(135deg,#166534,#22C55E);color:#fff;transition:opacity .2s}
+  .reject-btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;background:linear-gradient(135deg,#7f1d1d,#F87171);color:#fff;transition:opacity .2s}
+  .approve-btn:hover,.reject-btn:hover{opacity:.8}
+  .pending-count{background:#7C3AED;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
+  .admin-panel{background:#7C3AED0d;border:1px solid #7C3AED33;border-radius:14px;padding:22px;margin-bottom:20px}
+  .admin-panel-title{font-size:14px;color:#C4B5FD;font-weight:700;margin-bottom:16px}
+  .member-request-form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px}
+  .info-banner{background:#1a3a2a;border:1px solid #2d5a3a;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#86efac}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🌿</div>
+    <h1 class="login-title">SENKUMBA FAMILY</h1>
+    <div class="login-sub">Savings &amp; Loans Circle</div>
+    <div class="portal-select">
+      <button class="portal-btn admin-btn" id="portal-admin-btn" onclick="selectPortal('admin')">
+        <div class="portal-icon">🛡️</div>
+        <div>Admin</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:400;margin-top:3px">Full access</div>
+      </button>
+      <button class="portal-btn member-btn" id="portal-member-btn" onclick="selectPortal('member')">
+        <div class="portal-icon">👤</div>
+        <div>Member</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:400;margin-top:3px">View &amp; request</div>
+      </button>
+    </div>
+    <div id="login-admin-fields" style="display:none">
+      <div class="login-field">
+        <label>Admin Password</label>
+        <input type="password" id="admin-pass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+    </div>
+    <div id="login-member-fields" style="display:none">
+      <div class="login-field">
+        <label>Select Your Name</label>
+        <select id="member-select"></select>
+      </div>
+      <div class="login-field">
+        <label>PIN</label>
+        <input type="password" id="member-pin" placeholder="Enter your PIN (default: 1234)" maxlength="6" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+    </div>
+    <button class="login-enter" id="login-btn" onclick="doLogin()" style="display:none">Enter Portal →</button>
+    <div class="login-hint" id="login-hint"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none">
+
+<div class="header">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="header-top">
+      <div class="logo">🌿</div>
+      <div>
+        <h1 class="app-title">SENKUMBA FAMILY</h1>
+        <div class="app-sub">Savings &amp; Loans Circle</div>
+      </div>
+      <div class="header-right">
+        <span class="role-badge" id="role-badge"></span>
+        <span style="font-size:13px;color:var(--muted)" id="current-user-label"></span>
+        <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
+      </div>
+    </div>
+    <div class="summary-cards" style="padding-bottom:20px">
+      <div class="s-card" style="--c:#4ADE80"><div class="label">💰 Total Savings</div><div class="val" id="hdr-savings">UGX 0</div></div>
+      <div class="s-card" style="--c:#FBBF24"><div class="label">🤝 Total Loaned</div><div class="val" id="hdr-loaned">UGX 0</div></div>
+      <div class="s-card" style="--c:#F87171"><div class="label">⏳ Outstanding</div><div class="val" id="hdr-outstanding">UGX 0</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav" id="main-nav"></div>
+
+<div class="content">
+
+  <!-- DASHBOARD (shared) -->
+  <div class="tab active" id="tab-dashboard">
+    <h2 class="sec-title">Family Overview</h2>
+    <div class="member-grid" id="dashboard-grid"></div>
+  </div>
+
+  <!-- MEMBERS (shared, read-only) -->
+  <div class="tab" id="tab-members">
+    <h2 class="sec-title">Member Savings Detail</h2>
+    <div id="members-list"></div>
+  </div>
+
+  <!-- HISTORY (shared) -->
+  <div class="tab" id="tab-history">
+    <h2 class="sec-title">Full Transaction History</h2>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- ADD SAVING (admin) -->
+  <div class="tab" id="tab-add-saving">
+    <h2 class="sec-title">Record a Saving</h2>
+    <div class="form-card">
+      <label>Member</label><select id="sav-member"></select>
+      <label>Amount (UGX)</label><input type="number" id="sav-amount" placeholder="e.g. 50000"/>
+      <label>Note (optional)</label><input type="text" id="sav-note" placeholder="e.g. Monthly contribution"/>
+      <button class="btn btn-green" onclick="addSaving()">➕ Record Saving</button>
+    </div>
+  </div>
+
+  <!-- SEND MONEY (admin) -->
+  <div class="tab" id="tab-send-money">
+    <h2 class="sec-title">💸 Send Money to Member</h2>
+    <div class="form-card">
+      <label>Member</label><select id="send-member"></select>
+      <label>Amount (UGX)</label><input type="number" id="send-amount" placeholder="e.g. 100000"/>
+      <label>Reason</label><input type="text" id="send-reason" placeholder="e.g. Emergency withdrawal, dividend payout"/>
+      <button class="btn btn-red" onclick="sendMoney()">💸 Send / Withdraw</button>
+    </div>
+    <div style="margin-top:24px">
+      <h3 style="color:#F87171;margin-bottom:14px;font-size:16px">Recent Withdrawals / Sends</h3>
+      <div id="withdrawals-list"></div>
+    </div>
+  </div>
+  <div class="tab" id="tab-loans">
+    <div class="form-grid" style="margin-bottom:28px">
+      <div class="form-card">
+        <h3 style="color:#FBBF24;margin-bottom:16px;font-size:17px">🤝 Issue Loan</h3>
+        <label>Member</label><select id="loan-member"></select>
+        <label>Amount (UGX)</label><input type="number" id="loan-amount" placeholder="e.g. 200000"/>
+        <label>Purpose</label><input type="text" id="loan-purpose" placeholder="e.g. School fees"/>
+        <button class="btn btn-gold" onclick="addLoan()">Issue Loan</button>
+      </div>
+      <div class="form-card">
+        <h3 style="color:#4ADE80;margin-bottom:16px;font-size:17px">💵 Record Payment</h3>
+        <label>Select Loan</label><select id="pay-loan"></select>
+        <label>Payment (UGX)</label><input type="number" id="pay-amount" placeholder="Amount paid"/>
+        <label>Note</label><input type="text" id="pay-note" placeholder="e.g. Partial payment"/>
+        <button class="btn btn-green" onclick="payLoan()">Record Payment</button>
+      </div>
+    </div>
+    <h3 style="color:#A7F3D0;margin-bottom:14px">All Loans</h3>
+    <div id="loans-list"></div>
+  </div>
+
+  <!-- MANAGE MEMBERS (admin) -->
+  <div class="tab" id="tab-manage-members">
+    <h2 class="sec-title">⚙️ Manage Members</h2>
+    <div class="admin-panel">
+      <div class="admin-panel-title">🛡️ Add New Member</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:500px">
+        <div><label>Member Name</label><input type="text" id="new-member-name" placeholder="Full name" style="margin-bottom:0"/></div>
+        <div><label>Member PIN</label><input type="number" id="new-member-pin" placeholder="e.g. 5678" style="margin-bottom:0"/></div>
+      </div>
+      <div style="margin-top:14px">
+        <label>Colour</label>
+        <div id="color-picker" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+        <input type="text" id="new-member-color" placeholder="Or enter hex e.g. #A78BFA" style="max-width:260px"/>
+      </div>
+      <button class="btn btn-purple" style="max-width:220px;margin-top:4px" onclick="addMember()">➕ Add Member</button>
+    </div>
+    <h3 style="color:#A7F3D0;margin-bottom:14px;font-size:17px">Current Members</h3>
+    <div id="admin-members-list"></div>
+  </div>
+
+  <!-- REQUESTS (admin) -->
+  <div class="tab" id="tab-requests">
+    <h2 class="sec-title">📬 Pending Requests</h2>
+    <h3 style="color:#FBBF24;margin-bottom:14px;font-size:16px">💰 Saving Requests</h3>
+    <div id="pending-savings-list"></div>
+    <div style="margin-top:24px">
+      <h3 style="color:#C4B5FD;margin-bottom:14px;font-size:16px">🤝 Loan Requests</h3>
+      <div id="pending-loans-list"></div>
+    </div>
+  </div>
+
+  <!-- MY SAVINGS (member) -->
+  <div class="tab" id="tab-my-savings">
+    <h2 class="sec-title">My Savings</h2>
+    <div id="my-savings-list"></div>
+  </div>
+
+  <!-- MY LOANS (member) -->
+  <div class="tab" id="tab-my-loans">
+    <h2 class="sec-title">My Loans</h2>
+    <div id="my-loans-list"></div>
+  </div>
+
+  <!-- REQUEST (member) -->
+  <div class="tab" id="tab-request">
+    <h2 class="sec-title">📤 Submit a Request</h2>
+    <div class="info-banner">ℹ️ All requests are reviewed by an admin before they take effect.</div>
+    <div class="form-grid">
+      <div class="member-request-form">
+        <h3 style="color:#7DD3FC;margin-bottom:16px;font-size:16px">💰 Request Saving Entry</h3>
+        <label>Amount (UGX)</label><input type="number" id="req-sav-amount" placeholder="e.g. 50000"/>
+        <label>Note (optional)</label><input type="text" id="req-sav-note" placeholder="e.g. Monthly contribution"/>
+        <button class="btn btn-blue" onclick="submitSavingRequest()">📤 Submit Saving Request</button>
+      </div>
+      <div class="member-request-form" style="border-color:#7C3AED33;background:#7C3AED08">
+        <h3 style="color:#C4B5FD;margin-bottom:16px;font-size:16px">🤝 Request a Loan</h3>
+        <label>Amount (UGX)</label><input type="number" id="req-loan-amount" placeholder="e.g. 200000"/>
+        <label>Purpose</label><input type="text" id="req-loan-purpose" placeholder="e.g. School fees"/>
+        <button class="btn btn-purple" onclick="submitLoanRequest()">📤 Submit Loan Request</button>
+      </div>
+    </div>
+    <div style="margin-top:28px">
+      <h3 style="color:#A7F3D0;margin-bottom:14px;font-size:16px">My Past Requests</h3>
+      <div id="my-requests-list"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_MEMBERS=["David","Grace","Samuel","Ruth","Joseph","Mary","Peter","Esther"];
+const DEFAULT_COLORS={David:"#F4A261",Grace:"#E76F51",Samuel:"#2A9D8F",Ruth:"#E9C46A",Joseph:"#52B788",Mary:"#A8DADC",Peter:"#457B9D",Esther:"#E63946"};
+const ADMIN_PASSWORD="admin123";
+const PALETTE=["#F4A261","#E76F51","#2A9D8F","#E9C46A","#52B788","#A8DADC","#457B9D","#E63946","#7C3AED","#0EA5E9","#F43F5E","#10B981","#F59E0B","#6366F1"];
+
+function fmt(n){return"UGX "+Number(n||0).toLocaleString()}
+function today(){return new Date().toISOString().split("T")[0]}
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}}
+function persist(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+// ---- RESET to zero on first load (version check) ----
+const DATA_VERSION="v2-zero";
+if(localStorage.getItem("senkumba_version")!==DATA_VERSION){
+  ["senkumba_members","senkumba_pins","senkumba_colors","senkumba_savings","senkumba_loans","senkumba_requests","senkumba_withdrawals"].forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem("senkumba_version",DATA_VERSION);
+}
+
+let MEMBERS=load("senkumba_members",DEFAULT_MEMBERS);
+let MEMBER_PINS=load("senkumba_pins",{});
+let COLORS=load("senkumba_colors",DEFAULT_COLORS);
+let savings=load("senkumba_savings",[]);
+let loans=load("senkumba_loans",[]);
+let requests=load("senkumba_requests",[]);
+let withdrawals=load("senkumba_withdrawals",[]);
+
+let currentRole=null,currentUser=null;
+
+// ---- LOGIN ----
+function selectPortal(role){
+  document.getElementById("portal-admin-btn").classList.toggle("selected",role==="admin");
+  document.getElementById("portal-member-btn").classList.toggle("selected",role==="member");
+  document.getElementById("login-admin-fields").style.display=role==="admin"?"block":"none";
+  document.getElementById("login-member-fields").style.display=role==="member"?"block":"none";
+  document.getElementById("login-btn").style.display="block";
+  document.getElementById("login-hint").textContent=role==="admin"?"Default password: admin123":"Default PIN: 1234";
+  if(role==="member"){
+    const sel=document.getElementById("member-select");
+    sel.innerHTML=MEMBERS.map(m=>`<option>${m}</option>`).join("");
+  }
+}
+
+function doLogin(){
+  const isAdmin=document.getElementById("portal-admin-btn").classList.contains("selected");
+  const isMember=document.getElementById("portal-member-btn").classList.contains("selected");
+  if(!isAdmin&&!isMember){showToast("⚠ Select a portal first","error");return}
+  if(isAdmin){
+    if(document.getElementById("admin-pass").value!==ADMIN_PASSWORD){showToast("❌ Wrong password","error");return}
+    currentRole="admin";currentUser="Admin";
+  }else{
+    const name=document.getElementById("member-select").value;
+    const pin=document.getElementById("member-pin").value;
+    if(pin!==(MEMBER_PINS[name]||"1234")){showToast("❌ Wrong PIN","error");return}
+    currentRole="member";currentUser=name;
+  }
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("main-app").style.display="block";
+  document.getElementById("role-badge").className="role-badge "+(currentRole==="admin"?"admin":"member");
+  document.getElementById("role-badge").textContent=currentRole==="admin"?"🛡️ Admin":"👤 Member";
+  document.getElementById("current-user-label").textContent=currentUser;
+  buildNav();
+  populateSelects();
+  renderAll();
+}
+
+function doLogout(){
+  currentRole=null;currentUser=null;
+  document.getElementById("main-app").style.display="none";
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("admin-pass").value="";
+  document.getElementById("member-pin").value="";
+  document.getElementById("portal-admin-btn").classList.remove("selected");
+  document.getElementById("portal-member-btn").classList.remove("selected");
+  document.getElementById("login-admin-fields").style.display="none";
+  document.getElementById("login-member-fields").style.display="none";
+  document.getElementById("login-btn").style.display="none";
+  document.getElementById("login-hint").textContent="";
+}
+
+// ---- NAV ----
+function buildNav(){
+  const sharedTabs=[
+    {id:"dashboard",label:"📊 Dashboard"},
+    {id:"members",label:"👨‍👩‍👧‍👦 Members"},
+    {id:"history",label:"📋 History"}
+  ];
+  const adminTabs=[
+    {id:"add-saving",label:"➕ Add Saving"},
+    {id:"send-money",label:"💸 Send Money"},
+    {id:"loans",label:"🤝 Loans"},
+    {id:"manage-members",label:"⚙️ Manage"},
+    {id:"requests",label:"📬 Requests",id_attr:"requests-nav-btn"}
+  ];
+  const memberTabs=[
+    {id:"my-savings",label:"💰 My Savings"},
+    {id:"my-loans",label:"🤝 My Loans"},
+    {id:"request",label:"📤 Request"}
+  ];
+  const tabs=currentRole==="admin"
+    ?[sharedTabs[0],sharedTabs[1],...adminTabs,sharedTabs[2]]
+    :[sharedTabs[0],sharedTabs[1],...memberTabs,sharedTabs[2]];
+  document.getElementById("main-nav").innerHTML=tabs.map((t,i)=>
+    `<button class="nav-btn${i===0?" active":""}" ${t.id_attr?`id="${t.id_attr}"`:""}
+      onclick="showTab('${t.id}',this)">${t.label}</button>`
+  ).join("");
+}
+
+// ---- TAB ----
+function showTab(id,btn){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  const el=document.getElementById("tab-"+id);
+  if(el)el.classList.add("active");
+  if(btn)btn.classList.add("active");
+  renderAll();
+}
+
+// ---- TOAST ----
+function showToast(msg,type="success"){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast show"+(type==="error"?" error":"");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+// ---- SELECTS ----
+function populateSelects(){
+  ["sav-member","loan-member","send-member"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=MEMBERS.map(m=>`<option>${m}</option>`).join("");
+  });
+  const pl=document.getElementById("pay-loan");
+  if(pl){
+    const active=loans.filter(l=>l.paid<l.amount);
+    pl.innerHTML=`<option value="">-- Choose Loan --</option>`+
+      active.map(l=>`<option value="${loans.indexOf(l)}">${l.member} — ${fmt(l.amount-l.paid)} owed</option>`).join("");
+  }
+  const ms=document.getElementById("member-select");
+  if(ms)ms.innerHTML=MEMBERS.map(m=>`<option>${m}</option>`).join("");
+}
+
+// ---- HELPERS ----
+function memberSaved(m){return savings.filter(s=>s.member===m).reduce((a,s)=>a+s.amount,0)}
+function memberWithdrawn(m){return withdrawals.filter(w=>w.member===m).reduce((a,w)=>a+w.amount,0)}
+function memberLoaned(m){return loans.filter(l=>l.member===m).reduce((a,l)=>a+l.amount,0)}
+function memberOwed(m){return loans.filter(l=>l.member===m).reduce((a,l)=>a+(l.amount-l.paid),0)}
+function memberBalance(m){return memberSaved(m)-memberWithdrawn(m)-memberOwed(m)}
+function totalSavings(){return savings.reduce((a,s)=>a+s.amount,0)-withdrawals.reduce((a,w)=>a+w.amount,0)}
+function totalLoaned(){return loans.reduce((a,l)=>a+l.amount,0)}
+function totalRepaid(){return loans.reduce((a,l)=>a+l.paid,0)}
+
+// ---- RENDER HEADER ----
+function renderHeader(){
+  const ts=totalSavings(),tl=totalLoaned(),out=tl-totalRepaid();
+  document.getElementById("hdr-savings").textContent=fmt(ts);
+  document.getElementById("hdr-loaned").textContent=fmt(tl);
+  const el=document.getElementById("hdr-outstanding");
+  el.textContent=fmt(out);
+  el.closest(".s-card").style.setProperty("--c",out>0?"#F87171":"#4ADE80");
+  const pending=requests.filter(r=>r.status==="pending").length;
+  const rb=document.getElementById("requests-nav-btn");
+  if(rb)rb.innerHTML=`📬 Requests${pending>0?`<span class="pending-count">${pending}</span>`:""}`;
+}
+
+// ---- RENDER DASHBOARD ----
+function renderDashboard(){
+  const ts=totalSavings();
+  document.getElementById("dashboard-grid").innerHTML=MEMBERS.map(m=>{
+    const saved=memberSaved(m),withdrawn=memberWithdrawn(m),balance=memberBalance(m),loaned=memberLoaned(m),owed=memberOwed(m);
+    const pct=ts>0?(balance/ts*100).toFixed(1):0;
+    const c=COLORS[m]||"#52B788";
+    return`<div class="member-card" style="--mc:${c}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar" style="background:${c}">${m[0]}</div>
+          <strong style="font-size:15px">${m}</strong>
+        </div>
+        <span style="font-size:11px;color:var(--muted)">${pct>0?pct+"% of pool":"–"}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Balance: <strong style="color:${balance>=0?"#4ADE80":"#F87171"}">${fmt(balance)}</strong></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(0,pct)}%;background:${c}"></div></div>
+      <div class="stat-row">
+        <div><div class="stat-label">Deposited</div><div class="stat-val" style="color:#4ADE80">${fmt(saved)}</div></div>
+        <div><div class="stat-label">Sent Out</div><div class="stat-val" style="color:#F87171">${fmt(withdrawn)}</div></div>
+        <div><div class="stat-label">Owed</div><div class="stat-val" style="color:${owed>0?"#F87171":"#4ADE80"}">${fmt(owed)}</div></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ---- RENDER MEMBERS ----
+function renderMembers(){
+  document.getElementById("members-list").innerHTML=MEMBERS.map(m=>{
+    const list=savings.filter(s=>s.member===m);
+    const wlist=withdrawals.filter(w=>w.member===m);
+    const total=list.reduce((a,s)=>a+s.amount,0);
+    const totalW=wlist.reduce((a,w)=>a+w.amount,0);
+    const balance=total-totalW;
+    const c=COLORS[m]||"#52B788";
+    const rows=list.length===0&&wlist.length===0
+      ?`<div class="empty">No transactions recorded yet.</div>`
+      :[...list.map(s=>({...s,txType:"deposit"})),...wlist.map(w=>({...w,txType:"withdrawal"}))]
+        .sort((a,b)=>b.id-a.id)
+        .map(tx=>`<div style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px">
+          <div><span style="color:${tx.txType==="deposit"?"#4ADE80":"#F87171"};font-weight:600">${tx.txType==="deposit"?"+":"-"}${fmt(tx.amount)}</span>${(tx.note||tx.reason)?` <span style="color:var(--muted)">— ${tx.note||tx.reason}</span>`:""}</div>
+          <span style="color:var(--muted)">${tx.date}</span>
+        </div>`).join("");
+    return`<div class="card">
+      <div class="card-header" style="background:linear-gradient(90deg,${c}18,transparent)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar" style="background:${c}">${m[0]}</div>
+          <strong style="font-size:16px">${m}</strong>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:17px;font-weight:700;color:${balance>=0?c:"#F87171"}">${fmt(balance)}</div>
+          <div style="font-size:11px;color:var(--muted)">Balance • ${list.length} deposit${list.length!==1?"s":""}</div>
+        </div>
+      </div>
+      <div style="max-height:220px;overflow-y:auto">${rows}</div>
+    </div>`;
+  }).join("");
+}
+
+// ---- RENDER LOANS ----
+function renderLoans(){
+  populateSelects();
+  const el=document.getElementById("loans-list");
+  if(!el)return;
+  if(loans.length===0){el.innerHTML=`<div class="empty">No loans recorded yet.</div>`;return}
+  el.innerHTML=loans.map(l=>{
+    const owed=l.amount-l.paid,pct=Math.min(l.paid/l.amount*100,100).toFixed(0);
+    const done=owed<=0;const c=COLORS[l.member]||"#52B788";
+    const pymts=l.payments.length>0
+      ?`<div class="loan-payments"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Payment history:</div>`
+        +l.payments.map(p=>`<div class="payment-line"><span>+${fmt(p.amount)}${p.note?" — "+p.note:""}</span><span style="color:var(--muted)">${p.date}</span></div>`).join("")+`</div>`:"";
+    return`<div class="loan-card" style="border-color:${done?"#166534":"var(--border)"}">
+      <div class="loan-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="avatar" style="width:28px;height:28px;font-size:12px;background:${c}">${l.member[0]}</div>
+            <strong>${l.member}</strong>
+            ${done?`<span class="badge">CLEARED ✓</span>`:`<span class="badge badge-red">ACTIVE</span>`}
+          </div>
+          <div class="loan-meta">${l.purpose||"No purpose stated"} • ${l.date}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:700;color:${done?"#4ADE80":"#FBBF24"}">${fmt(l.amount)}</div>
+          <div style="font-size:12px;color:${done?"#4ADE80":"#F87171"}">Owed: ${fmt(owed)}</div>
+        </div>
+      </div>
+      <div class="loan-progress">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px"><span>Repaid ${fmt(l.paid)}</span><span>${pct}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${done?"#4ADE80":"#FBBF24"}"></div></div>
+      </div>${pymts}
+    </div>`;
+  }).join("");
+}
+
+// ---- RENDER HISTORY ----
+function renderHistory(){
+  const el=document.getElementById("history-list");
+  if(!el)return;
+  // Merge deposits and withdrawals into one timeline
+  const all=[
+    ...savings.map(s=>({...s,txType:"deposit"})),
+    ...withdrawals.map(w=>({...w,txType:"withdrawal"}))
+  ].sort((a,b)=>b.id-a.id);
+  if(all.length===0){el.innerHTML=`<div class="empty">No transactions yet.</div>`;return}
+  // Compute running balance per member (chronological order)
+  const balMap={};
+  [...all].reverse().forEach(tx=>{
+    if(!(tx.member in balMap))balMap[tx.member]=0;
+    balMap[tx.member]+=(tx.txType==="deposit"?tx.amount:-tx.amount);
+  });
+  // Render latest first with running balance snapshot approach
+  const memberRunning={};
+  MEMBERS.forEach(m=>{memberRunning[m]=memberBalance(m);});
+  el.innerHTML=all.map(tx=>{
+    const c=COLORS[tx.member]||"#52B788";
+    const isDepo=tx.txType==="deposit";
+    const balBefore=memberRunning[tx.member];
+    memberRunning[tx.member]-=(isDepo?tx.amount:-tx.amount);
+    return`<div class="tx-row">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="background:${c}">${tx.member[0]}</div>
+        <div>
+          <div style="font-weight:600">${tx.member}</div>
+          <div style="font-size:12px;color:var(--muted)">${tx.note||tx.reason||""}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="color:${isDepo?"#4ADE80":"#F87171"};font-weight:700;font-size:15px">${isDepo?"+":"-"}${fmt(tx.amount)}</div>
+        <div style="font-size:11px;color:var(--muted)">Balance: ${fmt(balBefore)}</div>
+        <div style="font-size:11px;color:var(--muted)">${tx.date}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ---- MEMBER VIEWS ----
+function renderMySavings(){
+  const el=document.getElementById("my-savings-list");if(!el)return;
+  const list=savings.filter(s=>s.member===currentUser);
+  const wlist=withdrawals.filter(w=>w.member===currentUser);
+  const totalIn=list.reduce((a,s)=>a+s.amount,0);
+  const totalOut=wlist.reduce((a,w)=>a+w.amount,0);
+  const balance=totalIn-totalOut;
+  const c=COLORS[currentUser]||"#52B788";
+  const pending=requests.filter(r=>r.member===currentUser&&r.type==="saving"&&r.status==="pending");
+  const allTx=[...list.map(s=>({...s,txType:"deposit"})),...wlist.map(w=>({...w,txType:"withdrawal"}))].sort((a,b)=>b.id-a.id);
+  let html=`<div class="card" style="margin-bottom:20px">
+    <div class="card-header" style="background:linear-gradient(90deg,${c}18,transparent)">
+      <div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="background:${c}">${currentUser[0]}</div><strong style="font-size:16px">${currentUser}</strong></div>
+      <div style="text-align:right">
+        <div style="font-size:22px;font-weight:700;color:${balance>=0?c:"#F87171"}">${fmt(balance)}</div>
+        <div style="font-size:11px;color:var(--muted)">Net Balance</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;padding:10px 18px;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px">💰 Deposited: <strong style="color:#4ADE80">${fmt(totalIn)}</strong></div>
+      <div style="font-size:13px">💸 Sent Out: <strong style="color:#F87171">${fmt(totalOut)}</strong></div>
+    </div>`;
+  if(allTx.length===0)html+=`<div class="empty">No transactions yet.</div>`;
+  else html+=`<div style="max-height:300px;overflow-y:auto">${allTx.map(tx=>`<div style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px"><div><span style="color:${tx.txType==="deposit"?"#4ADE80":"#F87171"};font-weight:600">${tx.txType==="deposit"?"+":"-"}${fmt(tx.amount)}</span>${(tx.note||tx.reason)?` <span style="color:var(--muted)">— ${tx.note||tx.reason}</span>`:""}</div><span style="color:var(--muted)">${tx.date}</span></div>`).join("")}</div>`;
+  html+=`</div>`;
+  if(pending.length>0){
+    html+=`<h3 style="color:#FBBF24;margin-bottom:12px;margin-top:20px;font-size:15px">⏳ Pending Requests</h3>`;
+    html+=pending.map(r=>`<div class="request-card"><div style="display:flex;justify-content:space-between"><div><strong>${fmt(r.amount)}</strong>${r.note?` <span style="color:var(--muted);font-size:12px">— ${r.note}</span>`:""}</div><span class="badge badge-yellow">PENDING</span></div><div style="font-size:12px;color:var(--muted);margin-top:4px">${r.date}</div></div>`).join("");
+  }
+  el.innerHTML=html;
+}
+
+function renderMyLoans(){
+  const el=document.getElementById("my-loans-list");if(!el)return;
+  const myLoans=loans.filter(l=>l.member===currentUser);
+  const pending=requests.filter(r=>r.member===currentUser&&r.type==="loan"&&r.status==="pending");
+  let html="";
+  if(myLoans.length===0)html+=`<div class="empty">No active loans.</div>`;
+  else html+=myLoans.map(l=>{
+    const owed=l.amount-l.paid,pct=Math.min(l.paid/l.amount*100,100).toFixed(0);
+    const done=owed<=0;
+    const pymts=l.payments.length>0?`<div class="loan-payments"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Payment history:</div>`+l.payments.map(p=>`<div class="payment-line"><span>+${fmt(p.amount)}${p.note?" — "+p.note:""}</span><span style="color:var(--muted)">${p.date}</span></div>`).join("")+`</div>`:"";
+    return`<div class="loan-card" style="border-color:${done?"#166534":"var(--border)"}">
+      <div class="loan-header"><div>${done?`<span class="badge">CLEARED ✓</span>`:`<span class="badge badge-red">ACTIVE</span>`}<div class="loan-meta">${l.purpose||"No purpose stated"} • ${l.date}</div></div>
+        <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:${done?"#4ADE80":"#FBBF24"}">${fmt(l.amount)}</div><div style="font-size:12px;color:${done?"#4ADE80":"#F87171"}">Owed: ${fmt(owed)}</div></div>
+      </div>
+      <div class="loan-progress"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px"><span>Repaid ${fmt(l.paid)}</span><span>${pct}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${done?"#4ADE80":"#FBBF24"}"></div></div></div>${pymts}
+    </div>`;
+  }).join("");
+  if(pending.length>0){
+    html+=`<h3 style="color:#C4B5FD;margin-top:20px;margin-bottom:12px;font-size:15px">⏳ Pending Loan Requests</h3>`;
+    html+=pending.map(r=>`<div class="request-card loan-req"><div style="display:flex;justify-content:space-between"><div><strong>${fmt(r.amount)}</strong>${r.purpose?` <span style="color:var(--muted);font-size:12px">— ${r.purpose}</span>`:""}</div><span class="badge badge-purple">PENDING</span></div><div style="font-size:12px;color:var(--muted);margin-top:4px">${r.date}</div></div>`).join("");
+  }
+  el.innerHTML=html;
+}
+
+function renderMyRequests(){
+  const el=document.getElementById("my-requests-list");if(!el)return;
+  const myReqs=requests.filter(r=>r.member===currentUser).slice().reverse();
+  if(myReqs.length===0){el.innerHTML=`<div class="empty">No requests submitted yet.</div>`;return}
+  el.innerHTML=myReqs.map(r=>{
+    const badge=r.status==="pending"?`<span class="badge badge-yellow">PENDING</span>`:r.status==="approved"?`<span class="badge">APPROVED ✓</span>`:`<span class="badge badge-red">REJECTED</span>`;
+    const desc=r.type==="saving"?`Saving: ${fmt(r.amount)}${r.note?" — "+r.note:""}`:`Loan: ${fmt(r.amount)}${r.purpose?" — "+r.purpose:""}`;
+    return`<div class="tx-row"><div><div style="font-weight:600;font-size:13px">${desc}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${r.date}</div></div>${badge}</div>`;
+  }).join("");
+}
+
+// ---- ADMIN PENDING REQUESTS ----
+function renderPendingRequests(){
+  const savEl=document.getElementById("pending-savings-list");
+  const loanEl=document.getElementById("pending-loans-list");
+  if(!savEl||!loanEl)return;
+  const savReqs=requests.filter(r=>r.type==="saving"&&r.status==="pending");
+  const loanReqs=requests.filter(r=>r.type==="loan"&&r.status==="pending");
+  savEl.innerHTML=savReqs.length===0?`<div class="empty">No pending saving requests.</div>`:savReqs.map(r=>`
+    <div class="request-card">
+      <div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:12px;background:${COLORS[r.member]||"#52B788"}">${r.member[0]}</div><strong>${r.member}</strong></div>
+      <div style="margin-top:6px;font-size:14px"><span style="color:#4ADE80;font-weight:700">${fmt(r.amount)}</span>${r.note?` <span style="color:var(--muted)">— ${r.note}</span>`:""}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Requested: ${r.date}</div>
+      <div class="request-actions"><button class="approve-btn" onclick="resolveRequest('${r.id}','approved')">✓ Approve</button><button class="reject-btn" onclick="resolveRequest('${r.id}','rejected')">✗ Reject</button></div>
+    </div>`).join("");
+  loanEl.innerHTML=loanReqs.length===0?`<div class="empty">No pending loan requests.</div>`:loanReqs.map(r=>`
+    <div class="request-card loan-req">
+      <div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:12px;background:${COLORS[r.member]||"#52B788"}">${r.member[0]}</div><strong>${r.member}</strong></div>
+      <div style="margin-top:6px;font-size:14px"><span style="color:#C4B5FD;font-weight:700">${fmt(r.amount)}</span>${r.purpose?` <span style="color:var(--muted)">— ${r.purpose}</span>`:""}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Requested: ${r.date}</div>
+      <div class="request-actions"><button class="approve-btn" onclick="resolveRequest('${r.id}','approved')">✓ Approve</button><button class="reject-btn" onclick="resolveRequest('${r.id}','rejected')">✗ Reject</button></div>
+    </div>`).join("");
+}
+
+// ---- ADMIN MEMBERS LIST ----
+function renderAdminMembers(){
+  const el=document.getElementById("admin-members-list");if(!el)return;
+  el.innerHTML=MEMBERS.map(m=>{
+    const c=COLORS[m]||"#52B788";
+    return`<div class="tx-row" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar" style="background:${c}">${m[0]}</div>
+        <div><div style="font-weight:600">${m}</div><div style="font-size:12px;color:var(--muted)">PIN: ${MEMBER_PINS[m]||"1234"} &nbsp;•&nbsp; <span style="color:${c}">■</span> ${c}</div></div>
+      </div>
+      <button class="btn btn-red btn-sm" onclick="removeMember('${m}')">Remove</button>
+    </div>`;
+  }).join("");
+  const cp=document.getElementById("color-picker");
+  if(cp)cp.innerHTML=PALETTE.map(c=>`<div onclick="document.getElementById('new-member-color').value='${c}'"
+    style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:border .2s"
+    onmouseover="this.style.border='2px solid #fff'" onmouseout="this.style.border='2px solid transparent'"></div>`).join("");
+}
+
+// ---- ADMIN ACTIONS ----
+function addSaving(){
+  const member=document.getElementById("sav-member").value;
+  const amount=parseFloat(document.getElementById("sav-amount").value);
+  const note=document.getElementById("sav-note").value.trim();
+  if(!amount||amount<=0){showToast("⚠ Enter a valid amount","error");return}
+  savings.unshift({id:Date.now(),member,amount,note,date:today()});
+  persist("senkumba_savings",savings);
+  document.getElementById("sav-amount").value="";document.getElementById("sav-note").value="";
+  showToast(`✓ ${member}'s saving of ${fmt(amount)} recorded!`);renderAll();
+}
+
+function sendMoney(){
+  const member=document.getElementById("send-member").value;
+  const amount=parseFloat(document.getElementById("send-amount").value);
+  const reason=document.getElementById("send-reason").value.trim();
+  if(!amount||amount<=0){showToast("⚠ Enter a valid amount","error");return}
+  const bal=memberBalance(member);
+  if(amount>bal){showToast(`⚠ ${member} only has ${fmt(bal)} available`,"error");return}
+  withdrawals.unshift({id:Date.now(),member,amount,reason,date:today()});
+  persist("senkumba_withdrawals",withdrawals);
+  document.getElementById("send-amount").value="";document.getElementById("send-reason").value="";
+  showToast(`✓ ${fmt(amount)} sent to ${member}. New balance: ${fmt(bal-amount)}`);renderAll();
+}
+
+function renderWithdrawals(){
+  const el=document.getElementById("withdrawals-list");if(!el)return;
+  if(withdrawals.length===0){el.innerHTML=`<div class="empty">No withdrawals yet.</div>`;return}
+  el.innerHTML=withdrawals.map(w=>{
+    const c=COLORS[w.member]||"#52B788";
+    return`<div class="tx-row">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="background:${c}">${w.member[0]}</div>
+        <div><div style="font-weight:600">${w.member}</div>${w.reason?`<div style="font-size:12px;color:var(--muted)">${w.reason}</div>`:""}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="color:#F87171;font-weight:700;font-size:15px">-${fmt(w.amount)}</div>
+        <div style="font-size:11px;color:var(--muted)">Balance: ${fmt(memberBalance(w.member))}</div>
+        <div style="font-size:12px;color:var(--muted)">${w.date}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function addLoan(){
+  const member=document.getElementById("loan-member").value;
+  const amount=parseFloat(document.getElementById("loan-amount").value);
+  const purpose=document.getElementById("loan-purpose").value.trim();
+  if(!amount||amount<=0){showToast("⚠ Enter a valid amount","error");return}
+  loans.unshift({id:Date.now(),member,amount,purpose,date:today(),paid:0,payments:[]});
+  persist("senkumba_loans",loans);
+  document.getElementById("loan-amount").value="";document.getElementById("loan-purpose").value="";
+  showToast(`✓ Loan of ${fmt(amount)} issued to ${member}`);renderAll();
+}
+
+function payLoan(){
+  const idx=parseInt(document.getElementById("pay-loan").value);
+  const amount=parseFloat(document.getElementById("pay-amount").value);
+  const note=document.getElementById("pay-note").value.trim();
+  if(isNaN(idx)||!amount||amount<=0){showToast("⚠ Select a loan and enter amount","error");return}
+  loans[idx].paid+=amount;loans[idx].payments.push({amount,date:today(),note});
+  persist("senkumba_loans",loans);
+  document.getElementById("pay-amount").value="";document.getElementById("pay-note").value="";
+  showToast("✓ Payment recorded!");renderAll();
+}
+
+function addMember(){
+  const name=document.getElementById("new-member-name").value.trim();
+  const pin=document.getElementById("new-member-pin").value.trim()||"1234";
+  const color=document.getElementById("new-member-color").value.trim()||"#52B788";
+  if(!name){showToast("⚠ Enter a member name","error");return}
+  if(MEMBERS.includes(name)){showToast("⚠ Member already exists","error");return}
+  MEMBERS.push(name);COLORS[name]=color;MEMBER_PINS[name]=pin;
+  persist("senkumba_members",MEMBERS);persist("senkumba_colors",COLORS);persist("senkumba_pins",MEMBER_PINS);
+  document.getElementById("new-member-name").value="";document.getElementById("new-member-pin").value="";document.getElementById("new-member-color").value="";
+  showToast(`✓ ${name} added as a member!`);populateSelects();renderAll();
+}
+
+function removeMember(name){
+  if(!confirm(`Remove ${name} from the group? Their savings history will remain.`))return;
+  MEMBERS=MEMBERS.filter(m=>m!==name);persist("senkumba_members",MEMBERS);
+  showToast(`${name} removed.`);populateSelects();renderAll();
+}
+
+function resolveRequest(id,status){
+  const idx=requests.findIndex(r=>r.id===id);if(idx===-1)return;
+  const r=requests[idx];requests[idx].status=status;persist("senkumba_requests",requests);
+  if(status==="approved"){
+    if(r.type==="saving"){savings.unshift({id:Date.now(),member:r.member,amount:r.amount,note:r.note||"",date:today()});persist("senkumba_savings",savings);showToast(`✓ Saving for ${r.member} approved!`);}
+    else{loans.unshift({id:Date.now(),member:r.member,amount:r.amount,purpose:r.purpose||"",date:today(),paid:0,payments:[]});persist("senkumba_loans",loans);showToast(`✓ Loan for ${r.member} approved!`);}
+  }else{showToast(`Request for ${r.member} rejected.`,"error");}
+  renderAll();
+}
+
+// ---- MEMBER ACTIONS ----
+function submitSavingRequest(){
+  const amount=parseFloat(document.getElementById("req-sav-amount").value);
+  const note=document.getElementById("req-sav-note").value.trim();
+  if(!amount||amount<=0){showToast("⚠ Enter a valid amount","error");return}
+  requests.unshift({id:String(Date.now()),type:"saving",member:currentUser,amount,note,date:today(),status:"pending"});
+  persist("senkumba_requests",requests);
+  document.getElementById("req-sav-amount").value="";document.getElementById("req-sav-note").value="";
+  showToast("✓ Request submitted — awaiting admin approval");renderAll();
+}
+
+function submitLoanRequest(){
+  const amount=parseFloat(document.getElementById("req-loan-amount").value);
+  const purpose=document.getElementById("req-loan-purpose").value.trim();
+  if(!amount||amount<=0){showToast("⚠ Enter a valid amount","error");return}
+  requests.unshift({id:String(Date.now()),type:"loan",member:currentUser,amount,purpose,date:today(),status:"pending"});
+  persist("senkumba_requests",requests);
+  document.getElementById("req-loan-amount").value="";document.getElementById("req-loan-purpose").value="";
+  showToast("✓ Loan request submitted — awaiting admin approval");renderAll();
+}
+
+// ---- RENDER ALL ----
+function renderAll(){
+  renderHeader();renderDashboard();renderMembers();renderHistory();
+  if(currentRole==="admin"){renderLoans();renderPendingRequests();renderAdminMembers();renderWithdrawals();}
+  else if(currentRole==="member"){renderMySavings();renderMyLoans();renderMyRequests();}
+}
+</script>
+</body>
+</html>
